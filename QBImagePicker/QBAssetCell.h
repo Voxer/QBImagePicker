@@ -17,4 +17,6 @@
 
 @property (nonatomic, assign) BOOL showsOverlayViewWhenSelected;
 
+- (void) animateShake;
+
 @end

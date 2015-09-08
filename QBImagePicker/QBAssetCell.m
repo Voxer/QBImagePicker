@@ -24,4 +24,15 @@
     self.overlayView.hidden = !(selected && self.showsOverlayViewWhenSelected);
 }
 
+- (void) animateShake
+{
+    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath: @"position"];
+    animation.duration     = 0.1;
+    animation.repeatCount  = 3;
+    animation.autoreverses = YES;
+    animation.fromValue = [NSValue valueWithCGPoint: CGPointMake(self.center.x - 5.0f, self.center.y)];
+    animation.toValue   = [NSValue valueWithCGPoint: CGPointMake(self.center.x + 5.0f, self.center.y)];
+    [self.layer addAnimation: animation forKey: @"position"];
+}
+
 @end

@@ -561,10 +561,20 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         return YES;
     }
     
-    return ![self isMaximumSelectionLimitReached];
+    BOOL isLimitReached = [self isMaximumSelectionLimitReached];
+    if (isLimitReached)
+    {
+        // Shake the asset
+        QBAssetCell* cell = (QBAssetCell*) [collectionView cellForItemAtIndexPath: indexPath];
+        if ([cell isKindOfClass: QBAssetCell.class])
+        {
+            [cell animateShake];
+        }
+    }
+    return !isLimitReached;
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
+- (void) collectionView: (UICollectionView*) collectionView didSelectItemAtIndexPath: (NSIndexPath*) indexPath
 {
     QBImagePickerController *imagePickerController = self.imagePickerController;
     NSMutableOrderedSet *selectedAssets = imagePickerController.selectedAssets;
