@@ -28,13 +28,6 @@
     
     if (self) {
         // Set default values
-        self.assetCollectionSubtypes = @[
-                                         @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
-                                         @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
-                                         @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
-                                         @(PHAssetCollectionSubtypeSmartAlbumVideos),
-                                         @(PHAssetCollectionSubtypeSmartAlbumBursts)
-                                         ];
         self.minimumNumberOfSelection = 1;
         self.numberOfColumnsInPortrait = 4;
         self.numberOfColumnsInLandscape = 7;
@@ -72,6 +65,29 @@
     [navigationController didMoveToParentViewController:self];
     
     self.albumsNavigationController = navigationController;
+}
+
+- (NSArray*) assetCollectionSubtypes
+{
+    if (!_assetCollectionSubtypes)
+    {
+        if (self.mediaType == QBImagePickerMediaTypeImage)
+            self.assetCollectionSubtypes = @[@(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
+                                             @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
+                                             @(PHAssetCollectionSubtypeSmartAlbumSelfPortraits),
+                                             @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
+                                             @(PHAssetCollectionSubtypeSmartAlbumBursts),
+                                             @(PHAssetCollectionSubtypeSmartAlbumScreenshots),];
+        else
+            self.assetCollectionSubtypes = @[@(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
+                                             @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
+                                             @(PHAssetCollectionSubtypeSmartAlbumSelfPortraits),
+                                             @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
+                                             @(PHAssetCollectionSubtypeSmartAlbumVideos),
+                                             @(PHAssetCollectionSubtypeSmartAlbumBursts),
+                                             @(PHAssetCollectionSubtypeSmartAlbumScreenshots),];
+    }
+    return _assetCollectionSubtypes;
 }
 
 @end
