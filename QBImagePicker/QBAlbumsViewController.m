@@ -44,8 +44,8 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     [self setUpToolbarItems];
     
     // Fetch user albums and smart albums
-    PHFetchResult *smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeAny options:nil];
-    PHFetchResult *userAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeAny options:nil];
+    PHFetchResult* smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType: PHAssetCollectionTypeSmartAlbum subtype: PHAssetCollectionSubtypeAny options:nil];
+    PHFetchResult* userAlbums  = [PHAssetCollection fetchAssetCollectionsWithType: PHAssetCollectionTypeAlbum      subtype: PHAssetCollectionSubtypeAny options:nil];
     self.fetchResults = @[smartAlbums, userAlbums];
     
     [self updateAssetCollections];
@@ -152,21 +152,24 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 - (void)updateAssetCollections
 {
     // Filter albums
-    NSArray *assetCollectionSubtypes = self.imagePickerController.assetCollectionSubtypes;
-    NSMutableDictionary *smartAlbums = [NSMutableDictionary dictionaryWithCapacity:assetCollectionSubtypes.count];
-    NSMutableArray *userAlbums = [NSMutableArray array];
-    
-    for (PHFetchResult *fetchResult in self.fetchResults) {
-        [fetchResult enumerateObjectsUsingBlock:^(PHAssetCollection *assetCollection, NSUInteger index, BOOL *stop) {
-            PHAssetCollectionSubtype subtype = assetCollection.assetCollectionSubtype;
-            
-            if (subtype == PHAssetCollectionSubtypeAlbumRegular) {
-                [userAlbums addObject:assetCollection];
-            } else if ([assetCollectionSubtypes containsObject:@(subtype)]) {
-                if (!smartAlbums[@(subtype)]) {
-                    smartAlbums[@(subtype)] = [NSMutableArray array];
-                }
-                [smartAlbums[@(subtype)] addObject:assetCollection];
+    NSArray* assetCollectionSubtypes = self.imagePickerController.assetCollectionSubtypes;
+    NSMutableDictionary* smartAlbums = [NSMutableDictionary dictionaryWithCapacity: assetCollectionSubtypes.count];
+    NSMutableArray* userAlbums = [NSMutableArray array];
+    for (PHFetchResult *fetchResult in self.fetchResults)
+    {
+        [fetchResult enumerateObjectsUsingBlock: ^(PHAssetCollection* assetCollection, NSUInteger index, BOOL* stop)
+        {
+            if (assetCollection.assetCollectionSubtype == PHAssetCollectionSubtypeAlbumRegular)
+            {
+                [userAlbums addObject: assetCollection];
+            }
+            else if ([assetCollectionSubtypes containsObject: @(assetCollection.assetCollectionSubtype)])
+            {
+                NSMutableArray* albums = smartAlbums[@(assetCollection.assetCollectionSubtype)];
+                if (!albums)
+                    smartAlbums[@(assetCollection.assetCollectionSubtype)] = [NSMutableArray arrayWithObject: assetCollection];
+                else
+                    [albums addObject: assetCollection];
             }
         }];
     }
@@ -174,19 +177,35 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     NSMutableArray *assetCollections = [NSMutableArray array];
 
     // Fetch smart albums
-    for (NSNumber *assetCollectionSubtype in assetCollectionSubtypes) {
-        NSArray *collections = smartAlbums[assetCollectionSubtype];
-        
-        if (collections) {
-            [assetCollections addObjectsFromArray:collections];
+    PHFetchOptions* options = [PHFetchOptions new];
+    options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey: @"creationDate" ascending: YES]];
+    switch (self.imagePickerController.mediaType)
+    {
+        case QBImagePickerMediaTypeImage:
+            options.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
+            break;
+
+        case QBImagePickerMediaTypeVideo:
+            options.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeVideo];
+            break;
+
+        default:
+            break;
+    }
+
+    for (NSNumber* assetCollectionSubtype in assetCollectionSubtypes)
+    {
+        for (PHAssetCollection* assetCollection in smartAlbums[assetCollectionSubtype])
+        {
+            PHFetchResult* fetchResult = [PHAsset fetchAssetsInAssetCollection: assetCollection options: options];
+            if (fetchResult.count)
+                [assetCollections addObject: assetCollection];
         }
     }
     
     // Fetch user albums
-    [userAlbums enumerateObjectsUsingBlock:^(PHAssetCollection *assetCollection, NSUInteger index, BOOL *stop) {
-        [assetCollections addObject:assetCollection];
-    }];
-    
+    [assetCollections addObjectsFromArray: userAlbums];
+
     self.assetCollections = assetCollections;
 }
 

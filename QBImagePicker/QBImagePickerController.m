@@ -77,7 +77,8 @@
                                              @(PHAssetCollectionSubtypeSmartAlbumSelfPortraits),
                                              @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
                                              @(PHAssetCollectionSubtypeSmartAlbumBursts),
-                                             @(PHAssetCollectionSubtypeSmartAlbumScreenshots),];
+                                             @(PHAssetCollectionSubtypeSmartAlbumScreenshots),
+                                             @(PHAssetCollectionSubtypeAlbumSyncedAlbum)];
         else
             self.assetCollectionSubtypes = @[@(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
                                              @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
