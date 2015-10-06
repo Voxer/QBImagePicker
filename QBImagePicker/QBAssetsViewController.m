@@ -102,19 +102,21 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     [self updateDoneButtonState];
     [self updateSelectionInfo];
     [self.collectionView reloadData];
-    
-    // Scroll to bottom
-    if (self.fetchResult.count > 0 && self.isMovingToParentViewController && !self.disableScrollToBottom) {
-        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:(self.fetchResult.count - 1) inSection:0];
-        [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
-    }
 }
 
-- (void)viewWillDisappear:(BOOL)animated
+- (void) viewDidLayoutSubviews
 {
-    [super viewWillDisappear:animated];
-    
-    self.disableScrollToBottom = YES;
+    [super viewDidLayoutSubviews];
+
+    // Scroll to bottom
+    if (self.fetchResult.count > 0 && !self.disableScrollToBottom)
+    {
+        NSIndexPath* indexPath = [NSIndexPath indexPathForItem: (self.fetchResult.count - 1) inSection: 0];
+        [self.collectionView scrollToItemAtIndexPath: indexPath
+                                    atScrollPosition: UICollectionViewScrollPositionTop
+                                            animated: NO];
+        self.disableScrollToBottom = YES;
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -653,17 +655,21 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 #pragma mark - UICollectionViewDelegateFlowLayout
 
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
+- (CGSize) collectionView: (UICollectionView*) collectionView
+                   layout: (UICollectionViewLayout*) collectionViewLayout
+   sizeForItemAtIndexPath: (NSIndexPath*) indexPath
 {
     NSUInteger numberOfColumns;
-    if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
+    if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation]))
+    {
         numberOfColumns = self.imagePickerController.numberOfColumnsInPortrait;
-    } else {
+    }
+    else
+    {
         numberOfColumns = self.imagePickerController.numberOfColumnsInLandscape;
     }
     
-    CGFloat width = (CGRectGetWidth(self.view.frame) - 2.0 * (numberOfColumns - 1)) / numberOfColumns;
-    
+    CGFloat width = (CGFloat) ((CGRectGetWidth(self.view.frame) - 2.0 * (numberOfColumns - 1)) / numberOfColumns);
     return CGSizeMake(width, width);
 }
 

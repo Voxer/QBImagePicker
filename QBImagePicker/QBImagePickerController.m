@@ -73,6 +73,7 @@
     {
         if (self.mediaType == QBImagePickerMediaTypeImage)
             self.assetCollectionSubtypes = @[@(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
+                                             @(PHAssetCollectionSubtypeSmartAlbumFavorites),
                                              @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
                                              @(PHAssetCollectionSubtypeSmartAlbumSelfPortraits),
                                              @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
@@ -81,6 +82,7 @@
                                              @(PHAssetCollectionSubtypeAlbumSyncedAlbum)];
         else
             self.assetCollectionSubtypes = @[@(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
+                                             @(PHAssetCollectionSubtypeSmartAlbumFavorites),
                                              @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
                                              @(PHAssetCollectionSubtypeSmartAlbumSelfPortraits),
                                              @(PHAssetCollectionSubtypeSmartAlbumPanoramas),

@@ -84,11 +84,10 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-    QBAssetsViewController *assetsViewController = segue.destinationViewController;
+    QBAssetsViewController *assetsViewController = (QBAssetsViewController*) segue.destinationViewController;
     assetsViewController.imagePickerController = self.imagePickerController;
     assetsViewController.assetCollection = self.assetCollections[self.tableView.indexPathForSelectedRow.row];
 }
-
 
 #pragma mark - Actions
 
@@ -205,7 +204,10 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     
     // Fetch user albums
     [assetCollections addObjectsFromArray: userAlbums];
-
+    [assetCollections sortUsingComparator: ^NSComparisonResult(PHAssetCollection* c1, PHAssetCollection* c2)
+                                           {
+                                               return [c1.localizedTitle localizedCaseInsensitiveCompare: c2.localizedTitle];
+                                           }];
     self.assetCollections = assetCollections;
 }
 
