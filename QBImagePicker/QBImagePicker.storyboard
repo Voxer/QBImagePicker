@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="8187.4" systemVersion="15A279b" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="8191" systemVersion="15A284" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8151.3"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8154"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
@@ -50,10 +50,15 @@
                                                         <constraint firstAttribute="height" constant="68" id="sYi-5u-vyi"/>
                                                     </constraints>
                                                 </imageView>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="16" placeholderIntrinsicHeight="16" translatesAutoresizingMaskIntoConstraints="NO" id="SJf-64-eXp">
+                                                    <rect key="frame" x="4" y="52" width="16" height="16"/>
+                                                    <animations/>
+                                                </imageView>
                                             </subviews>
                                             <animations/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             <constraints>
+                                                <constraint firstItem="SJf-64-eXp" firstAttribute="leading" secondItem="FFV-lv-81k" secondAttribute="leading" constant="4" id="H2c-67-K4S"/>
                                                 <constraint firstAttribute="width" constant="68" id="LPf-oG-4uz"/>
                                                 <constraint firstAttribute="centerX" secondItem="aA6-Ye-jVF" secondAttribute="centerX" id="MGk-ae-eo0"/>
                                                 <constraint firstAttribute="height" constant="72" id="QZm-fs-LRK"/>
@@ -62,20 +67,21 @@
                                                 <constraint firstItem="aA6-Ye-jVF" firstAttribute="top" secondItem="kTm-zK-fPP" secondAttribute="top" id="hKW-3j-Ktd"/>
                                                 <constraint firstAttribute="bottom" secondItem="FFV-lv-81k" secondAttribute="bottom" id="mCq-ET-p0U"/>
                                                 <constraint firstAttribute="centerX" secondItem="7bp-En-8qW" secondAttribute="centerX" id="p86-QG-SAY"/>
+                                                <constraint firstItem="SJf-64-eXp" firstAttribute="bottom" secondItem="FFV-lv-81k" secondAttribute="bottom" constant="-4" id="pGs-iQ-Eer"/>
                                             </constraints>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Album Title" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="9" translatesAutoresizingMaskIntoConstraints="NO" id="SeB-hL-cJJ">
                                             <rect key="frame" x="102" y="22" width="457" height="21"/>
                                             <animations/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Number of Photos" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PTi-mB-UBX">
                                             <rect key="frame" x="102" y="46" width="457" height="15"/>
                                             <animations/>
                                             <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                     </subviews>
@@ -93,6 +99,7 @@
                                 </tableViewCellContentView>
                                 <animations/>
                                 <connections>
+                                    <outlet property="albumIconView" destination="SJf-64-eXp" id="pqb-D4-hSQ"/>
                                     <outlet property="countLabel" destination="PTi-mB-UBX" id="RE7-cn-ClQ"/>
                                     <outlet property="imageView1" destination="FFV-lv-81k" id="tDK-OF-ipY"/>
                                     <outlet property="imageView2" destination="7bp-En-8qW" id="2ol-my-8hB"/>
@@ -144,10 +151,10 @@
                         </collectionViewFlowLayout>
                         <cells>
                             <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="AssetCell" id="fc0-k1-HNL" customClass="QBAssetCell">
-                                <rect key="frame" x="0.0" y="72" width="78" height="78"/>
+                                <rect key="frame" x="0.0" y="72" width="77.5" height="77.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                                    <rect key="frame" x="0.0" y="0.0" width="78" height="78"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="77.5" height="77.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="0aq-fn-r9R">
@@ -260,7 +267,7 @@
                                     <rect key="frame" x="0.0" y="22" width="600" height="21"/>
                                     <animations/>
                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                             </subviews>

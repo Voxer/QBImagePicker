@@ -30,14 +30,15 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 @property (nonatomic, strong) IBOutlet UIBarButtonItem *doneButton;
 
-@property (nonatomic, copy) NSArray *fetchResults;
-@property (nonatomic, copy) NSArray *assetCollections;
+@property (nonatomic, copy) NSArray* fetchResults;
+@property (nonatomic, copy) NSArray* assetCollections;
+@property (nonatomic, strong) NSDictionary<NSNumber*, NSString*>* icons;
 
 @end
 
 @implementation QBAlbumsViewController
 
-- (void)viewDidLoad
+- (void) viewDidLoad
 {
     [super viewDidLoad];
     
@@ -295,10 +296,10 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    QBAlbumCell *cell = [tableView dequeueReusableCellWithIdentifier:@"AlbumCell" forIndexPath:indexPath];
-    cell.tag = indexPath.row;
-    cell.borderWidth = 1.0 / [[UIScreen mainScreen] scale];
-    
+    QBAlbumCell* cell = [tableView dequeueReusableCellWithIdentifier: @"AlbumCell" forIndexPath: indexPath];
+    cell.tag         = indexPath.row;
+    cell.borderWidth = 1.0f / [[UIScreen mainScreen] scale];
+
     // Thumbnail
     PHAssetCollection *assetCollection = self.assetCollections[indexPath.row];
     
@@ -380,6 +381,15 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     
     // Number of photos
     cell.countLabel.text = [NSString stringWithFormat:@"%lu", (long)fetchResult.count];
+
+    NSString* albumIconName = self.icons[@(assetCollection.assetCollectionSubtype)];
+    if (albumIconName)
+    {
+        cell.albumIconView.image  = [UIImage imageNamed: albumIconName];
+        cell.albumIconView.hidden = NO;
+    }
+    else
+        cell.albumIconView.hidden = YES;
     
     return cell;
 }
@@ -410,5 +420,19 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         }
     });
 }
+
+#pragma mark - Lazy
+
+- (NSDictionary*) icons
+{
+    if (!_icons)
+        _icons = @{ @(PHAssetCollectionSubtypeSmartAlbumFavorites)     : @"ip_ic_favorite_white",
+                    @(PHAssetCollectionSubtypeSmartAlbumBursts)        : @"ip_ic_burst_white",
+                    @(PHAssetCollectionSubtypeSmartAlbumSelfPortraits) : @"ip_ic_camera_front_white",
+                    @(PHAssetCollectionSubtypeSmartAlbumPanoramas)     : @"ip_ic_panorama_horizontal_white",
+                    @(PHAssetCollectionSubtypeSmartAlbumScreenshots)   : @"ip_ic_phone_iphone_white" };
+    return _icons;
+}
+
 
 @end
