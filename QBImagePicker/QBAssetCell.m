@@ -16,6 +16,12 @@
 
 @implementation QBAssetCell
 
+- (void) awakeFromNib
+{
+    [super awakeFromNib];
+    self.unavailableAssetOverlay.image = [UIImage imageNamed: @"ic_video_select_error"];
+}
+
 - (void)setSelected:(BOOL)selected
 {
     [super setSelected:selected];

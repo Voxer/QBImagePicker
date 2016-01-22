@@ -18,6 +18,7 @@
 - (void)qb_imagePickerControllerDidCancel:(QBImagePickerController *)imagePickerController;
 
 - (BOOL)qb_imagePickerController:(QBImagePickerController *)imagePickerController shouldSelectAsset:(PHAsset *)asset;
+- (BOOL)qb_imagePickerController:(QBImagePickerController *)imagePickerController isAssetSelectable:(PHAsset *)asset;
 - (void)qb_imagePickerController:(QBImagePickerController *)imagePickerController didSelectAsset:(PHAsset *)asset;
 - (void)qb_imagePickerController:(QBImagePickerController *)imagePickerController didDeselectAsset:(PHAsset *)asset;
 

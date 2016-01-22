@@ -442,8 +442,8 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    QBAssetCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"AssetCell" forIndexPath:indexPath];
-    cell.tag = indexPath.item;
+    QBAssetCell* cell = [collectionView dequeueReusableCellWithReuseIdentifier: @"AssetCell" forIndexPath: indexPath];
+    cell.tag                          = indexPath.item;
     cell.showsOverlayViewWhenSelected = self.imagePickerController.allowsMultipleSelection;
     
     // Image
@@ -462,7 +462,8 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
                               }];
     
     // Video indicator
-    if (asset.mediaType == PHAssetMediaTypeVideo) {
+    if (asset.mediaType == PHAssetMediaTypeVideo)
+    {
         cell.videoIndicatorView.hidden = NO;
         
         NSInteger minutes = (NSInteger)(asset.duration / 60.0);
@@ -480,7 +481,12 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     } else {
         cell.videoIndicatorView.hidden = YES;
     }
-    
+
+    if ([self.imagePickerController.delegate respondsToSelector: @selector(qb_imagePickerController:isAssetSelectable:)])
+        cell.unavailableAssetOverlay.hidden = [self.imagePickerController.delegate qb_imagePickerController: self.imagePickerController isAssetSelectable: asset];
+    else
+        cell.unavailableAssetOverlay.hidden = YES;
+
     // Selection state
     if ([self.imagePickerController.selectedAssets containsObject:asset]) {
         [cell setSelected:YES];
