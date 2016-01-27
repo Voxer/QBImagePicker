@@ -88,7 +88,8 @@
                                              @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
                                              @(PHAssetCollectionSubtypeSmartAlbumVideos),
                                              @(PHAssetCollectionSubtypeSmartAlbumBursts),
-                                             @(PHAssetCollectionSubtypeSmartAlbumScreenshots),];
+                                             @(PHAssetCollectionSubtypeSmartAlbumScreenshots),
+                                             @(PHAssetCollectionSubtypeAlbumSyncedAlbum)];
     }
     return _assetCollectionSubtypes;
 }

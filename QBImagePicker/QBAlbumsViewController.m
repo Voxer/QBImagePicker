@@ -213,10 +213,6 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     
     // Fetch user albums
     [assetCollections addObjectsFromArray: userAlbums];
-    [assetCollections sortUsingComparator: ^NSComparisonResult(PHAssetCollection* c1, PHAssetCollection* c2)
-                                           {
-                                               return [c1.localizedTitle localizedCaseInsensitiveCompare: c2.localizedTitle];
-                                           }];
     self.assetCollections = assetCollections;
 }
 
@@ -394,14 +390,14 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     if (albumIconName)
     {
         cell.albumIconView.image  = [UIImage imageNamed: albumIconName];
-        cell.albumIconView.hidden = NO;
+        cell.gradientView.hidden = NO;
     }
     else
-        cell.albumIconView.hidden = YES;
-    
+    {
+        cell.gradientView.hidden = YES;
+    }
     return cell;
 }
-
 
 #pragma mark - PHPhotoLibraryChangeObserver
 

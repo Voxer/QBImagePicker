@@ -90,6 +90,9 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     self.navigationItem.prompt = self.imagePickerController.prompt;
     
     // Configure collection view
+    UICollectionViewFlowLayout* layout = (UICollectionViewFlowLayout*) self.collectionView.collectionViewLayout;
+    layout.minimumInteritemSpacing = 2 * (1.0f / [UIScreen mainScreen].scale);
+    layout.minimumLineSpacing      = 2 * (1.0f / [UIScreen mainScreen].scale);
     self.collectionView.allowsMultipleSelection = self.imagePickerController.allowsMultipleSelection;
     
     // Show/hide 'Done' button
@@ -676,7 +679,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
    sizeForItemAtIndexPath: (NSIndexPath*) indexPath
 {
     NSUInteger numberOfColumns;
-    if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation]))
+    if (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation))
     {
         numberOfColumns = self.imagePickerController.numberOfColumnsInPortrait;
     }
@@ -684,9 +687,14 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     {
         numberOfColumns = self.imagePickerController.numberOfColumnsInLandscape;
     }
-    
-    CGFloat width = (CGFloat) ((CGRectGetWidth(self.view.frame) - 2.0 * (numberOfColumns - 1)) / numberOfColumns);
-    return CGSizeMake(width, width);
+
+    UICollectionViewFlowLayout* flowLayout = (UICollectionViewFlowLayout*) collectionView.collectionViewLayout;
+
+    CGFloat availableWidth = CGRectGetWidth(self.view.frame);
+    availableWidth -= flowLayout.sectionInset.left + flowLayout.minimumInteritemSpacing * (numberOfColumns - 1) + flowLayout.sectionInset.right;
+
+    CGFloat itemWidth = availableWidth / numberOfColumns;
+    return CGSizeMake(itemWidth, itemWidth);
 }
 
 @end

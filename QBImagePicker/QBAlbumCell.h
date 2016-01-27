@@ -16,6 +16,7 @@
 @property (weak, nonatomic) IBOutlet UIImageView *albumIconView;
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 @property (weak, nonatomic) IBOutlet UILabel *countLabel;
+@property (weak, nonatomic) IBOutlet UIView  *gradientView;
 
 @property (nonatomic, assign) CGFloat borderWidth;
 

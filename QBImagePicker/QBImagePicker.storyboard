@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
@@ -46,22 +46,34 @@
                                                         <constraint firstAttribute="height" constant="68" id="sYi-5u-vyi"/>
                                                     </constraints>
                                                 </imageView>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="16" placeholderIntrinsicHeight="16" translatesAutoresizingMaskIntoConstraints="NO" id="SJf-64-eXp">
-                                                    <rect key="frame" x="4" y="52" width="16" height="16"/>
-                                                </imageView>
+                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="z4n-L2-QCK" customClass="QBVideoIndicatorView">
+                                                    <rect key="frame" x="0.0" y="52" width="68" height="20"/>
+                                                    <subviews>
+                                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="16" placeholderIntrinsicHeight="16" translatesAutoresizingMaskIntoConstraints="NO" id="SJf-64-eXp">
+                                                            <rect key="frame" x="4" y="0.0" width="16" height="16"/>
+                                                        </imageView>
+                                                    </subviews>
+                                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                                    <constraints>
+                                                        <constraint firstItem="SJf-64-eXp" firstAttribute="leading" secondItem="z4n-L2-QCK" secondAttribute="leading" constant="4" id="F1k-Co-Opx"/>
+                                                        <constraint firstAttribute="height" constant="20" id="bJe-w0-bWx"/>
+                                                        <constraint firstAttribute="bottom" secondItem="SJf-64-eXp" secondAttribute="bottom" constant="4" id="nOX-v0-p8k"/>
+                                                    </constraints>
+                                                </view>
                                             </subviews>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             <constraints>
-                                                <constraint firstItem="SJf-64-eXp" firstAttribute="leading" secondItem="FFV-lv-81k" secondAttribute="leading" constant="4" id="H2c-67-K4S"/>
+                                                <constraint firstItem="z4n-L2-QCK" firstAttribute="leading" secondItem="FFV-lv-81k" secondAttribute="leading" id="Acp-cO-e1b"/>
+                                                <constraint firstItem="z4n-L2-QCK" firstAttribute="trailing" secondItem="FFV-lv-81k" secondAttribute="trailing" id="D6t-M5-1VY"/>
                                                 <constraint firstAttribute="width" constant="68" id="LPf-oG-4uz"/>
                                                 <constraint firstAttribute="centerX" secondItem="aA6-Ye-jVF" secondAttribute="centerX" id="MGk-ae-eo0"/>
                                                 <constraint firstAttribute="height" constant="72" id="QZm-fs-LRK"/>
+                                                <constraint firstItem="z4n-L2-QCK" firstAttribute="bottom" secondItem="FFV-lv-81k" secondAttribute="bottom" id="RgY-1y-w52"/>
                                                 <constraint firstAttribute="centerX" secondItem="FFV-lv-81k" secondAttribute="centerX" id="YXS-g2-72j"/>
                                                 <constraint firstItem="7bp-En-8qW" firstAttribute="top" secondItem="kTm-zK-fPP" secondAttribute="top" constant="2" id="eC1-Ul-L5i"/>
                                                 <constraint firstItem="aA6-Ye-jVF" firstAttribute="top" secondItem="kTm-zK-fPP" secondAttribute="top" id="hKW-3j-Ktd"/>
                                                 <constraint firstAttribute="bottom" secondItem="FFV-lv-81k" secondAttribute="bottom" id="mCq-ET-p0U"/>
                                                 <constraint firstAttribute="centerX" secondItem="7bp-En-8qW" secondAttribute="centerX" id="p86-QG-SAY"/>
-                                                <constraint firstItem="SJf-64-eXp" firstAttribute="bottom" secondItem="FFV-lv-81k" secondAttribute="bottom" constant="-4" id="pGs-iQ-Eer"/>
                                             </constraints>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Album Title" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="9" translatesAutoresizingMaskIntoConstraints="NO" id="SeB-hL-cJJ">
@@ -91,6 +103,7 @@
                                 <connections>
                                     <outlet property="albumIconView" destination="SJf-64-eXp" id="pqb-D4-hSQ"/>
                                     <outlet property="countLabel" destination="PTi-mB-UBX" id="RE7-cn-ClQ"/>
+                                    <outlet property="gradientView" destination="z4n-L2-QCK" id="gDA-9k-GWn"/>
                                     <outlet property="imageView1" destination="FFV-lv-81k" id="tDK-OF-ipY"/>
                                     <outlet property="imageView2" destination="7bp-En-8qW" id="2ol-my-8hB"/>
                                     <outlet property="imageView3" destination="aA6-Ye-jVF" id="jvN-vK-7sr"/>
@@ -210,7 +223,7 @@
                                                 <constraint firstAttribute="right" secondItem="m99-yj-HSc" secondAttribute="right" constant="4" id="aQv-HN-dQG"/>
                                             </constraints>
                                         </view>
-                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_video_select_error" translatesAutoresizingMaskIntoConstraints="NO" id="2fp-eX-AIW">
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="2fp-eX-AIW">
                                             <rect key="frame" x="0.0" y="0.0" width="78" height="78"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
                                         </imageView>
@@ -306,7 +319,4 @@
             <point key="canvasLocation" x="166" y="852"/>
         </scene>
     </scenes>
-    <resources>
-        <image name="ic_video_select_error" width="30" height="30"/>
-    </resources>
 </document>
