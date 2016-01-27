@@ -93,9 +93,19 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     self.collectionView.allowsMultipleSelection = self.imagePickerController.allowsMultipleSelection;
     
     // Show/hide 'Done' button
-    if (self.imagePickerController.allowsMultipleSelection) {
+    if (self.imagePickerController.allowsMultipleSelection)
+    {
+        if (self.imagePickerController.doneButton)
+        {
+            UIBarButtonItem* item = self.imagePickerController.doneButton;
+            item.target = self.doneButton.target;
+            item.action = self.doneButton.action;
+            self.doneButton = item;
+        }
         [self.navigationItem setRightBarButtonItem:self.doneButton animated:NO];
-    } else {
+    }
+    else
+    {
         [self.navigationItem setRightBarButtonItem:nil animated:NO];
     }
     

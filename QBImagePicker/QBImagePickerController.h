@@ -42,6 +42,7 @@ typedef NS_ENUM(NSUInteger, QBImagePickerMediaType) {
 @property (nonatomic, assign) BOOL allowsMultipleSelection;
 @property (nonatomic, assign) NSUInteger minimumNumberOfSelection;
 @property (nonatomic, assign) NSUInteger maximumNumberOfSelection;
+@property (nonatomic, strong) UIBarButtonItem* doneButton;
 
 @property (nonatomic, copy) NSString *prompt;
 @property (nonatomic, assign) BOOL showsNumberOfSelectedAssets;
