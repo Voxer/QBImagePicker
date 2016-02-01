@@ -231,9 +231,9 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         }
         
         NSString *title = [NSString stringWithFormat:format, selectedAssets.count];
-        [(UIBarButtonItem *)self.toolbarItems[1] setTitle:title];
+        self.toolbarItems[1].title = title;
     } else {
-        [(UIBarButtonItem *)self.toolbarItems[1] setTitle:@""];
+        self.toolbarItems[1].title = @"";
     }
 }
 
@@ -311,7 +311,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     
     // The preheat window is twice the height of the visible rect
     CGRect preheatRect = self.collectionView.bounds;
-    preheatRect = CGRectInset(preheatRect, 0.0, -0.5 * CGRectGetHeight(preheatRect));
+    preheatRect = CGRectInset(preheatRect, 0.0f, -0.5f * CGRectGetHeight(preheatRect));
     
     // If scrolled by a "reasonable" amount...
     CGFloat delta = ABS(CGRectGetMidY(preheatRect) - CGRectGetMidY(self.previousPreheatRect));
@@ -478,9 +478,10 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     if (asset.mediaType == PHAssetMediaTypeVideo)
     {
         cell.videoIndicatorView.hidden = NO;
-        
-        NSInteger minutes = (NSInteger)(asset.duration / 60.0);
-        NSInteger seconds = (NSInteger)ceil(asset.duration - 60.0 * (double)minutes);
+
+        NSTimeInterval duration = round(asset.duration);
+        NSInteger      minutes  = (NSInteger)(duration / 60.0);
+        NSInteger      seconds  = (NSInteger)ceil(duration - 60.0 * (double)minutes);
         cell.videoIndicatorView.timeLabel.text = [NSString stringWithFormat:@"%02ld:%02ld", (long)minutes, (long)seconds];
         
         if (asset.mediaSubtypes & PHAssetMediaSubtypeVideoHighFrameRate) {
@@ -517,7 +518,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
                                                                                          forIndexPath:indexPath];
         
         // Number of assets
-        UILabel *label = (UILabel *)[footerView viewWithTag:1];
+        UILabel *label = [footerView viewWithTag:1];
         
         NSBundle *bundle = self.imagePickerController.assetBundle;
         NSUInteger numberOfPhotos = [self.fetchResult countOfAssetsWithMediaType:PHAssetMediaTypeImage];
