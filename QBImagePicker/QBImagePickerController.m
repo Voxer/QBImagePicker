@@ -87,6 +87,8 @@
                                              @(PHAssetCollectionSubtypeSmartAlbumSelfPortraits),
                                              @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
                                              @(PHAssetCollectionSubtypeSmartAlbumVideos),
+                                             @(PHAssetCollectionSubtypeSmartAlbumSlomoVideos),
+                                             @(PHAssetCollectionSubtypeSmartAlbumTimelapses),
                                              @(PHAssetCollectionSubtypeSmartAlbumBursts),
                                              @(PHAssetCollectionSubtypeSmartAlbumScreenshots),
                                              @(PHAssetCollectionSubtypeAlbumSyncedAlbum)];

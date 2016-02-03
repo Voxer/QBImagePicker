@@ -434,7 +434,10 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
                     @(PHAssetCollectionSubtypeSmartAlbumBursts)        : @"ip_ic_burst_white",
                     @(PHAssetCollectionSubtypeSmartAlbumSelfPortraits) : @"ip_ic_camera_front_white",
                     @(PHAssetCollectionSubtypeSmartAlbumPanoramas)     : @"ip_ic_panorama_horizontal_white",
-                    @(PHAssetCollectionSubtypeSmartAlbumScreenshots)   : @"ip_ic_phone_iphone_white" };
+                    @(PHAssetCollectionSubtypeSmartAlbumScreenshots)   : @"ip_ic_phone_iphone_white",
+                    @(PHAssetCollectionSubtypeSmartAlbumVideos)        : @"ip_ic_video",
+                    @(PHAssetCollectionSubtypeSmartAlbumSlomoVideos)   : @"ip_ic_video_slowmotion",
+                    @(PHAssetCollectionSubtypeSmartAlbumTimelapses)    : @"ip_ic_video_timelapse"};
     return _icons;
 }
 
