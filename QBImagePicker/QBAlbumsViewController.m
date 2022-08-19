@@ -8,6 +8,7 @@
 
 #import "QBAlbumsViewController.h"
 #import <Photos/Photos.h>
+#import <PhotosUI/PhotosUI.h>
 
 // Views
 #import "QBAlbumCell.h"
@@ -33,6 +34,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 @property (nonatomic, copy) NSArray* fetchResults;
 @property (nonatomic, copy) NSArray* assetCollections;
 @property (nonatomic, strong) NSDictionary<NSNumber*, NSString*>* icons;
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *limitedPhotoLibraryAccessBannerHeightConstraint;
 
 @end
 
@@ -43,6 +45,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     [super viewDidLoad];
     
     [self setUpToolbarItems];
+    [self showLimitedPhotoLibraryAccessBannerIfNecessary];
     
     // Fetch user albums and smart albums
     PHFetchResult* smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType: PHAssetCollectionTypeSmartAlbum subtype: PHAssetCollectionSubtypeAny options:nil];
@@ -152,6 +155,56 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     } else {
         [(UIBarButtonItem *)self.toolbarItems[1] setTitle:@""];
     }
+}
+
+#pragma mark - Limited Photo Library Access Banner
+
+- (void)showLimitedPhotoLibraryAccessBannerIfNecessary
+{
+    self.limitedPhotoLibraryAccessTextLabel.font      = [UIFont fontWithName: @"ProximaNova-Regular" size: 14.0f];
+    self.limitedPhotoLibraryAccessTextLabel.textColor = [UIColor colorWithWhite:102.0/255.0f alpha:1.0f];
+    self.limitedPhotoLibraryAccessTextLabel.text = @"Tap 'Manage' to allow access to all photos.";
+    self.managePhotoLibraryAccessButton.titleLabel.font = [UIFont fontWithName: @"ProximaNova-Regular" size: 14.0f];
+    [self.managePhotoLibraryAccessButton setTitle:@"Manage" forState:UIControlStateNormal];
+    
+    BOOL limitedPhotoLibraryAccess = NO;
+    if (@available(iOS 14, *)) {
+        limitedPhotoLibraryAccess = [PHPhotoLibrary authorizationStatusForAccessLevel:PHAccessLevelReadWrite] == PHAuthorizationStatusLimited;
+    }
+    self.limitedPhotoLibraryAccessBannerHeightConstraint.constant = limitedPhotoLibraryAccess ? 44.0f : 0;
+}
+
+- (IBAction)didTapManagePhotoLibraryAccessButton:(id)sender {
+    UIAlertController* alertController = [UIAlertController alertControllerWithTitle: nil
+                                                                             message: @"Select more photos or go to Settings to allow access to all photos."
+                                                                      preferredStyle: UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction* selectMorePhotosActions = [UIAlertAction actionWithTitle: @"Select more photos"
+                                                            style: UIAlertActionStyleDefault
+                                                          handler: ^(UIAlertAction * action)
+                                                          {
+                                                            if (@available(iOS 14, *))
+                                                            {
+                                                                [[PHPhotoLibrary sharedPhotoLibrary] presentLimitedLibraryPickerFromViewController:self];
+                                                            }
+                                                          }];
+    
+    UIAlertAction* allowAccessToAllPhotosAction = [UIAlertAction actionWithTitle: @"Allow access to all photos"
+                                                            style: UIAlertActionStyleDefault
+                                                          handler: ^(UIAlertAction * action)
+                                                          {
+                                                            NSURL* url = [NSURL URLWithString: UIApplicationOpenSettingsURLString];
+                                                            [[UIApplication sharedApplication] openURL: url];
+                                                          }];
+    
+    UIAlertAction* cancelAction = [UIAlertAction actionWithTitle: @"Cancel"
+                                                            style: UIAlertActionStyleCancel
+                                                          handler: nil];
+
+    [alertController addAction: selectMorePhotosActions];
+    [alertController addAction: allowAccessToAllPhotosAction];
+    [alertController addAction: cancelAction];
+    [self presentViewController: alertController animated: YES completion: nil];
 }
 
 

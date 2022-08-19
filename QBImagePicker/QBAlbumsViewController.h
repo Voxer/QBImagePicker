@@ -10,8 +10,11 @@
 
 @class QBImagePickerController;
 
-@interface QBAlbumsViewController : UITableViewController
+@interface QBAlbumsViewController : UIViewController
 
 @property (nonatomic, weak) QBImagePickerController *imagePickerController;
+@property (strong, nonatomic) IBOutlet UITableView *tableView;
+@property (strong, nonatomic) IBOutlet UILabel *limitedPhotoLibraryAccessTextLabel;
+@property (strong, nonatomic) IBOutlet UIButton *managePhotoLibraryAccessButton;
 
 @end
