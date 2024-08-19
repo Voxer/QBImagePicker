@@ -33,8 +33,9 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 @property (nonatomic, copy) NSArray* fetchResults;
 @property (nonatomic, copy) NSArray* assetCollections;
+@property (nonatomic, assign) NSInteger totalAssetCount;
 @property (nonatomic, strong) NSDictionary<NSNumber*, NSString*>* icons;
-@property (strong, nonatomic) IBOutlet NSLayoutConstraint *limitedPhotoLibraryAccessBannerHeightConstraint;
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *photoLibraryAccessBannerHeightConstraint;
 
 @end
 
@@ -45,7 +46,6 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     [super viewDidLoad];
     
     [self setUpToolbarItems];
-    [self showLimitedPhotoLibraryAccessBannerIfNecessary];
     
     // Fetch user albums and smart albums
     PHFetchResult* smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType: PHAssetCollectionTypeSmartAlbum subtype: PHAssetCollectionSubtypeAny options:nil];
@@ -159,22 +159,60 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 #pragma mark - Limited Photo Library Access Banner
 
-- (void)showLimitedPhotoLibraryAccessBannerIfNecessary
+- (void)showPhotoLibraryAccessBannerIfNecessary
 {
-    self.limitedPhotoLibraryAccessTextLabel.font      = [UIFont fontWithName: @"ProximaNova-Regular" size: 14.0f];
-    self.limitedPhotoLibraryAccessTextLabel.textColor = [UIColor colorWithWhite:102.0/255.0f alpha:1.0f];
-    self.limitedPhotoLibraryAccessTextLabel.text = @"Tap 'Manage' to allow access to all photos.";
+    self.photoLibraryAccessTextLabel.font      = [UIFont fontWithName: @"ProximaNova-Regular" size: 14.0f];
+    self.photoLibraryAccessTextLabel.textColor = [UIColor colorWithWhite:102.0/255.0f alpha:1.0f];
     self.managePhotoLibraryAccessButton.titleLabel.font = [UIFont fontWithName: @"ProximaNova-Regular" size: 14.0f];
-    [self.managePhotoLibraryAccessButton setTitle:@"Manage" forState:UIControlStateNormal];
     
-    BOOL limitedPhotoLibraryAccess = NO;
+    NSString* labelText;
+    NSString* buttonTitle;
+    CGFloat heightConstraintConstant = 0.0f;
+    PHAuthorizationStatus authorizationStatus = PHPhotoLibrary.authorizationStatus;
     if (@available(iOS 14, *)) {
-        limitedPhotoLibraryAccess = [PHPhotoLibrary authorizationStatusForAccessLevel:PHAccessLevelReadWrite] == PHAuthorizationStatusLimited;
+        authorizationStatus = [PHPhotoLibrary authorizationStatusForAccessLevel:PHAccessLevelReadWrite];
     }
-    self.limitedPhotoLibraryAccessBannerHeightConstraint.constant = limitedPhotoLibraryAccess ? 44.0f : 0;
+    switch (authorizationStatus)
+    {
+        case PHAuthorizationStatusRestricted:
+            labelText = @"Voxer is not authorized to access the photo library due to parental controls or institutional configuration.";
+            buttonTitle = @"";
+            heightConstraintConstant = 120.0f;
+            self.managePhotoLibraryAccessButton.enabled = NO;
+            break;
+        case PHAuthorizationStatusDenied:
+            labelText = @"To attach photos to your messages, please allow access to your Photos.";
+            buttonTitle = @"Allow Access";
+            heightConstraintConstant = 120.0f;
+            [self.managePhotoLibraryAccessButton addTarget: self action: @selector(didTapAllowAccess:) forControlEvents: UIControlEventTouchUpInside];
+            self.managePhotoLibraryAccessButton.enabled = YES;
+            break;
+        case PHAuthorizationStatusLimited:
+            labelText = self.totalAssetCount == 0 ?
+            @"It seems you allowed Voxer to access a selection of photos but this selection is empty." :
+            @"You allowed Voxer to access a limited selection of photos. Tap manage selection to give access to all photos.";
+            buttonTitle = @"Manage Selection";
+            heightConstraintConstant = 120.0f;
+            [self.managePhotoLibraryAccessButton addTarget: self action: @selector(didTapManageSelection:) forControlEvents: UIControlEventTouchUpInside];
+            self.managePhotoLibraryAccessButton.enabled = YES;
+            break;
+        default:
+            break;
+    }
+    
+    self.photoLibraryAccessTextLabel.text = labelText;
+    [self.managePhotoLibraryAccessButton setTitle:buttonTitle forState:UIControlStateNormal];
+    self.photoLibraryAccessBannerHeightConstraint.constant = heightConstraintConstant;
 }
 
-- (IBAction)didTapManagePhotoLibraryAccessButton:(id)sender {
+- (void) didTapAllowAccess: (id) sender
+{
+    NSURL* url = [NSURL URLWithString: UIApplicationOpenSettingsURLString];
+    [[UIApplication sharedApplication] openURL: url];
+}
+
+- (void) didTapManageSelection: (id) sender
+{
     UIAlertController* alertController = [UIAlertController alertControllerWithTitle: nil
                                                                              message: @"Select more photos or go to Settings to allow access to all photos."
                                                                       preferredStyle: UIAlertControllerStyleActionSheet];
@@ -267,6 +305,20 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     // Fetch user albums
     [assetCollections addObjectsFromArray: userAlbums];
     self.assetCollections = assetCollections;
+    
+    NSInteger totalAssetCount = 0;
+    NSMutableSet *uniqueAssetIdentifiers = [NSMutableSet set];
+    for (PHAssetCollection *collection in self.assetCollections) {
+        PHFetchResult *assets = [PHAsset fetchAssetsInAssetCollection:collection options:options];
+        for (PHAsset *asset in assets) {
+            if (![uniqueAssetIdentifiers containsObject:asset.localIdentifier]) {
+                [uniqueAssetIdentifiers addObject:asset.localIdentifier];
+                totalAssetCount++;
+            }
+        }
+    }
+    self.totalAssetCount = totalAssetCount;
+    [self showPhotoLibraryAccessBannerIfNecessary];
 }
 
 - (UIImage *)placeholderImageWithSize:(CGSize)size
