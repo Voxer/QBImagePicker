@@ -422,7 +422,14 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         case QBImagePickerMediaTypeVideo:
             options.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeVideo];
             break;
-            
+        case QBImagePickerMediaTypeAny:
+            if (self.imagePickerController.shouldFilterOutVideosWithMaxNumberOfSeconds) {
+                NSUInteger duration = self.imagePickerController.maxNumberOfSecondsForVideos;
+                options.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %ld AND duration <= %d) OR mediaType == %ld", PHAssetMediaTypeVideo, duration, PHAssetMediaTypeImage];
+            } else {
+                options.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %ld) OR mediaType == %ld", PHAssetMediaTypeVideo, PHAssetMediaTypeImage];
+            }
+            break;
         default:
             break;
     }
@@ -438,7 +445,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
                                contentMode:PHImageContentModeAspectFill
                                    options:nil
                              resultHandler:^(UIImage *result, NSDictionary *info) {
-                                 if (cell.tag == indexPath.row) {
+                                 if (cell.tag == indexPath.row && result != nil) {
                                      cell.imageView3.image = result;
                                  }
                              }];
@@ -454,7 +461,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
                                contentMode:PHImageContentModeAspectFill
                                    options:nil
                              resultHandler:^(UIImage *result, NSDictionary *info) {
-                                 if (cell.tag == indexPath.row) {
+                                 if (cell.tag == indexPath.row && result != nil) {
                                      cell.imageView2.image = result;
                                  }
                              }];
@@ -468,7 +475,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
                                contentMode:PHImageContentModeAspectFill
                                    options:nil
                              resultHandler:^(UIImage *result, NSDictionary *info) {
-                                 if (cell.tag == indexPath.row) {
+                                 if (cell.tag == indexPath.row && result != nil) {
                                      cell.imageView1.image = result;
                                  }
                              }];

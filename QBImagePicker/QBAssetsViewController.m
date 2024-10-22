@@ -14,6 +14,8 @@
 #import "QBAssetCell.h"
 #import "QBVideoIndicatorView.h"
 
+#import "NSIndexSet+ContainsAny.h"
+
 static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     return CGSizeMake(size.width * scale, size.height * scale);
 }
@@ -122,13 +124,13 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     [super viewDidLayoutSubviews];
 
     // Scroll to bottom
-    if (self.fetchResult.count > 0 && !self.disableScrollToBottom)
-    {
-        NSIndexPath* indexPath = [NSIndexPath indexPathForItem: (self.fetchResult.count - 1) inSection: 0];
-        [self.collectionView scrollToItemAtIndexPath: indexPath
-                                    atScrollPosition: UICollectionViewScrollPositionTop
-                                            animated: NO];
-        self.disableScrollToBottom = YES;
+    if (self.fetchResult.count > 0 && self.isMovingToParentViewController && !self.disableScrollToBottom) {
+        // when presenting as a .FormSheet on iPad, the frame is not correct until just after viewWillAppear:
+        // dispatching to the main thread waits one run loop until the frame is update and the layout is complete
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSIndexPath *indexPath = [NSIndexPath indexPathForItem:(self.fetchResult.count - 1) inSection:0];
+            [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
+        });
     }
 }
 
@@ -253,7 +255,14 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
             case QBImagePickerMediaTypeVideo:
                 options.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeVideo];
                 break;
-                
+            case QBImagePickerMediaTypeAny:
+                if (self.imagePickerController.shouldFilterOutVideosWithMaxNumberOfSeconds) {
+                    NSUInteger duration = self.imagePickerController.maxNumberOfSecondsForVideos;
+                    options.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %ld AND duration <= %d) OR mediaType == %ld", PHAssetMediaTypeVideo, duration, PHAssetMediaTypeImage];
+                } else {
+                    options.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %ld) OR mediaType == %ld", PHAssetMediaTypeVideo, PHAssetMediaTypeImage];
+                }
+                break;
             default:
                 break;
         }
@@ -395,41 +404,59 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 #pragma mark - PHPhotoLibraryChangeObserver
 
-- (void)photoLibraryDidChange:(PHChange *)changeInstance
-{
+- (void)photoLibraryDidChange:(PHChange *)changeInstance {
+    __weak typeof(self) weakSelf = self;
+    
     dispatch_async(dispatch_get_main_queue(), ^{
-        PHFetchResultChangeDetails *collectionChanges = [changeInstance changeDetailsForFetchResult:self.fetchResult];
+        typeof(self) self = weakSelf;
         
-        if (collectionChanges) {
-            // Get the new fetch result
-            self.fetchResult = [collectionChanges fetchResultAfterChanges];
-            
-            if (![collectionChanges hasIncrementalChanges] || [collectionChanges hasMoves]) {
-                // We need to reload all if the incremental diffs are not available
-                [self.collectionView reloadData];
-            } else {
-                // If we have incremental diffs, tell the collection view to animate insertions and deletions
-                [self.collectionView performBatchUpdates:^{
-                    NSIndexSet *removedIndexes = [collectionChanges removedIndexes];
-                    if ([removedIndexes count]) {
-                        [self.collectionView deleteItemsAtIndexPaths:[removedIndexes qb_indexPathsFromIndexesWithSection:0]];
-                    }
-                    
-                    NSIndexSet *insertedIndexes = [collectionChanges insertedIndexes];
-                    if ([insertedIndexes count]) {
-                        [self.collectionView insertItemsAtIndexPaths:[insertedIndexes qb_indexPathsFromIndexesWithSection:0]];
-                    }
-                    
-                    NSIndexSet *changedIndexes = [collectionChanges changedIndexes];
-                    if ([changedIndexes count]) {
-                        [self.collectionView reloadItemsAtIndexPaths:[changedIndexes qb_indexPathsFromIndexesWithSection:0]];
-                    }
-                } completion:NULL];
+        if (!self) return;
+        
+        // If we have incremental diffs, tell the collection view to animate insertions and deletions
+        void (^batchUpdated)(PHFetchResultChangeDetails *) = ^void(PHFetchResultChangeDetails *collectionChanges){
+            [self.collectionView performBatchUpdates:^{
+                NSIndexSet *removedIndexes = [collectionChanges removedIndexes];
+                if ([removedIndexes count]) {
+                    [self.collectionView deleteItemsAtIndexPaths:[removedIndexes qb_indexPathsFromIndexesWithSection:0]];
+                }
+                
+                NSIndexSet *insertedIndexes = [collectionChanges insertedIndexes];
+                if ([insertedIndexes count]) {
+                    [self.collectionView insertItemsAtIndexPaths:[insertedIndexes qb_indexPathsFromIndexesWithSection:0]];
+                }
+                
+                NSIndexSet *changedIndexes = [collectionChanges changedIndexes];
+                if ([changedIndexes count]) {
+                    [self.collectionView reloadItemsAtIndexPaths:[changedIndexes qb_indexPathsFromIndexesWithSection:0]];
+                }
+            } completion:NULL];
+        };
+        
+        BOOL (^shouldReload)(PHFetchResultChangeDetails *) = ^BOOL(PHFetchResultChangeDetails *collectionChanges){
+            if ([collectionChanges hasMoves]) { return YES; }
+            if ([collectionChanges hasIncrementalChanges] == NO) { return YES; }
+            if ([collectionChanges.removedIndexes containsAnyIndexOf:collectionChanges.changedIndexes]) {
+                return YES;
             }
             
-            [self resetCachedAssets];
+            return NO;
+        };
+        
+        PHFetchResultChangeDetails *collectionChanges = [changeInstance changeDetailsForFetchResult:self.fetchResult];
+        if (collectionChanges == nil) { return; }
+        
+        self.fetchResult = [collectionChanges fetchResultAfterChanges];
+        
+        if (shouldReload(collectionChanges)){
+            // We need to reload all if the incremental diffs are not available
+            [self.collectionView reloadData];
+        } else {
+            batchUpdated(collectionChanges);
         }
+        
+        [self resetCachedAssets];
     });
+    
 }
 
 
@@ -469,7 +496,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
                                 contentMode:PHImageContentModeAspectFill
                                     options:nil
                               resultHandler:^(UIImage *result, NSDictionary *info) {
-                                  if (cell.tag == indexPath.item) {
+                                  if (cell.tag == indexPath.item && result != nil) {
                                       cell.imageView.image = result;
                                   }
                               }];
@@ -479,10 +506,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     {
         cell.videoIndicatorView.hidden = NO;
 
-        NSTimeInterval duration = round(asset.duration);
-        NSInteger      minutes  = (NSInteger)(duration / 60.0);
-        NSInteger      seconds  = (NSInteger)ceil(duration - 60.0 * (double)minutes);
-        cell.videoIndicatorView.timeLabel.text = [NSString stringWithFormat:@"%02ld:%02ld", (long)minutes, (long)seconds];
+        cell.videoIndicatorView.timeLabel.text = [self formattedDurationFromTimeInterval:asset.duration];
         
         if (asset.mediaSubtypes & PHAssetMediaSubtypeVideoHighFrameRate) {
             cell.videoIndicatorView.videoIcon.hidden = YES;
@@ -508,6 +532,35 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     }
     
     return cell;
+}
+
+- (NSDateComponentsFormatter *)durationFormatterForTimeInterval:(NSTimeInterval)interval {
+    NSDateComponentsFormatter *formatter = [[NSDateComponentsFormatter alloc] init];
+    formatter.unitsStyle = NSDateComponentsFormatterUnitsStylePositional;
+
+    if (interval >= 3600) { // 1 hour = 3600 seconds
+        formatter.allowedUnits = NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
+    } else {
+        formatter.allowedUnits = NSCalendarUnitMinute | NSCalendarUnitSecond;
+    }
+
+    formatter.zeroFormattingBehavior = NSDateComponentsFormatterZeroFormattingBehaviorPad;
+    return formatter;
+}
+
+- (NSString *)formattedDurationFromTimeInterval:(NSTimeInterval)interval {
+    // Round the interval to the nearest second
+    interval = round(interval);
+    
+    NSDateComponentsFormatter *formatter = [self durationFormatterForTimeInterval:interval];
+    NSString *formattedString = [formatter stringFromTimeInterval:interval];
+
+    // Remove leading zero for minutes
+    if ([formattedString hasPrefix:@"0"]) {
+        formattedString = [formattedString substringFromIndex:1];
+    }
+
+    return formattedString;
 }
 
 - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
