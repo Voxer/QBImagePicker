@@ -253,7 +253,14 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
             case QBImagePickerMediaTypeVideo:
                 options.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeVideo];
                 break;
-                
+            case QBImagePickerMediaTypeAny:
+                if (self.imagePickerController.shouldFilterOutVideosWithMaxNumberOfSeconds) {
+                    NSUInteger duration = self.imagePickerController.maxNumberOfSecondsForVideos;
+                    options.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %ld AND duration <= %d) OR mediaType == %ld", PHAssetMediaTypeVideo, duration, PHAssetMediaTypeImage];
+                } else {
+                    options.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %ld) OR mediaType == %ld", PHAssetMediaTypeVideo, PHAssetMediaTypeImage];
+                }
+                break;
             default:
                 break;
         }
